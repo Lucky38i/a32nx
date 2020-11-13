@@ -1,4 +1,29 @@
 class CDUFlightPlanPage {
+    static buildRouteFromNavlog(navlog,route, mcdu) {
+        const routeSplit = route.split(' ');
+        const procedures = new Set(navlog.filter(fix => fix.is_sid_star === "1").map(fix => fix.via_airway));
+
+        for (const routeIdent of routeSplit) {
+            for (const fix of navlog) {
+                if (fix.is_sid_star === "0") {
+                    if (!procedures.has(routeIdent)) {
+                        if (routeIdent.match(/((^[0-9]+[a-z]+)|(^[a-z]+[0-9]+))+[0-9a-z]+$/i) || routeIdent === "DCT") {
+                            if (routeIdent === "DCT") {
+                                console.log("Direct to waypoint found, skipping");
+                                break;
+                            } else {
+                                console.log("inserting airway : " + routeIdent);
+                                break;
+                            }
+                        } else {
+                            console.log("Inserting waypoint : " + routeIdent);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
     static ShowPage(mcdu, offset = 0) {
         mcdu.clearDisplay();
         mcdu.page.Current = mcdu.page.FlightPlanPage;
